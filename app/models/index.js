@@ -1,7 +1,8 @@
 /** importation de la configuration */
-const { Sequelize } = require("sequelize/types");
 const dbConfig = require("../config/db.config.js");
 /** importation de la librairie sequelize */
+const Sequelize = require("sequelize");
+
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     host: dbConfig.HOST,
     dialect: dbConfig.dialect,
@@ -9,8 +10,9 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
 
     pool: {
         max: dbConfig.pool.max,
-        min: dbConfig.pool.acquire,
-        acquire: dbConfig.pool.idle
+        min: dbConfig.pool.min,
+        acquire: dbConfig.pool.acquire,
+        idle: dbConfig.pool.idle
     }
 });
 
