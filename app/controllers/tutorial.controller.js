@@ -1,6 +1,22 @@
-const db = require("../models");
-const Tutorial = db.tutorials;
-const Op = db.Sequelize.Op;
+module.exports = app => {
+    const tutorials = require("../controllers/tutorial.controller.js");
+    var router = require("express").Router();
+    // Create a new Tutorial
+    router.post("/", tutorials.create);
+    // Retrieve all Tutorials
+    router.get("/", tutorials.findAll);
+    // Retrieve all published Tutorials
+    router.get("/published", tutorials.findAllPublished);
+    // Retrieve a single Tutorial with id
+    router.get("/:id", tutorials.findOne);
+    // Update a Tutorial with id
+    router.put("/:id", tutorials.update);
+    // Delete a Tutorial with id
+    router.delete("/:id", tutorials.delete);
+    // Delete all Tutorials
+    router.delete("/", tutorials.deleteAll);
+    app.use('/api/tutorials', router);
+};
 
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
@@ -53,12 +69,52 @@ exports.findAll = (req, res) => {
 exports.update = (req, res) =>{    
 };
 
-// Update a tutorial by the id in the request
+// Update a Tutorial by the id in the request
 exports.update = (req, res) => {
+    const id = req.params.id;
+    Tutorial.update(req.body, {
+        where: { id: id }
+    })
+        .then(num => {
+            if (num == 1) {
+                res.send({
+                    message: "Tutorial was updated successfully."
+                });
+            } else {
+                res.send({
+                    message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found or req.body is empty!`
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Error updating Tutorial with id=" + id
+            });
+        });
 };
 
-// Delete a tutorial with the specified id in the request
+// Delete a Tutorial with the specified id in the request
 exports.delete = (req, res) => {
+    const id = req.params.id;
+    Tutorial.destroy({
+        where: { id: id }
+    })
+        .then(num => {
+            if (num == 1) {
+                res.send({
+                    message: "Tutorial was deleted successfully!"
+                });
+            } else {
+                res.send({
+                    message: `Cannot delete Tutorial with id=${id}. Maybe Tutorial was not found!`
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Could not delete Tutorial with id=" + id
+            });
+        });
 };
 
 // Delete all tutorials from the database
@@ -67,4 +123,14 @@ exports.deleteAll = (req, res) => {
 
 // Find all published Tutorials
 exports.findAllPublished = (req, res) => {
+    Tutorial.findAll({ where: { published: true } })
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving tutorials."
+            });
+        });
 };

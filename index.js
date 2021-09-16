@@ -24,6 +24,8 @@ app.get("/",(req, res) => {
     res.json({message: "bonjour Mr dupont comment allez vous aujoudhui"});
 });
 
+require("./app/routes/tutorial.routes")(app);
+
 //configuration du server web (choix du port)
 const PORT = 3000;
 app.listen(PORT, () => {
